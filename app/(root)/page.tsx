@@ -1,10 +1,17 @@
-import Image from "next/image";
-import Link from "next/link";
+import { auth } from '@/auth';
+import React from 'react';
 
-export default function Home() {
+const Home = async () => {
+  const session = await auth();
+  console.log(session);
+
   return (
-   <div>
-      <h1 className="h1-bold text-primary-100">Welcome To My Course </h1> 
-   </div>
+    <div>
+      <h1 className='h1-bold'>Welcome to our home page </h1>
+      <h1 className='h1-bold'>Welcome to our home page </h1>
+      <h1 className='h1-bold'>Welcome to our home page </h1>
+    </div>
   );
-}
+};
+
+export default Home;
