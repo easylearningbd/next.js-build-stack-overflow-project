@@ -46,11 +46,14 @@ return (
             </Link>
         );
 
-        return LinkComponent;
- 
-
-        })} 
-        
+        return isMobileNav ? (
+            <SheetClose asChild key={item.route}>
+                {LinkComponent}
+            </SheetClose>
+        ) : (
+            <React.Fragment key={item.route}>{LinkComponent}</React.Fragment>
+        );
+        })}  
     </>
 ); 
 };
