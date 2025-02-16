@@ -1,8 +1,9 @@
 "use client"
 import Image from 'next/image';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Input } from '../ui/input';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { formUrlQuery, removeKeysFromUrlQuery } from '@/lib/url';
 
 interface Props {
     route: string;
@@ -19,7 +20,28 @@ const LocalSearch = ({ route,imgSrc,placeholder,otherClasses }: Props) => {
     const query = searchParams.get("query") || "";
     const [searchQuery, setSearchQuery] = useState(query);
 
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            if (searchQuery) {
+                const newUrl = formUrlQuery({
+                    params: searchParams.toString(),
+                    key: "query",
+                    value: searchQuery,
+                });
+                router.push(newUrl, {scroll: false});    
+            } else {
+                if (pathname === route) {
+                    const newUrl = removeKeysFromUrlQuery({
+                        params: searchParams.toString(),
+                        keysToRemove: ["query"],
+                    });
+                    router.push(newUrl, {scroll: false});
+                }
+            }
 
+        },300);  
+        return () => clearTimeout(delayDebounceFn); 
+    },[searchQuery,router,route,searchParams,pathname]); 
 
 
     return (
