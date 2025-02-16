@@ -24,6 +24,14 @@ const Home = async () => {
       />
     </section>
 
+    Home Filter part 
+
+    <div className='mt-10 flex w-full flex-col gap-6'>
+      <h2>Qustions one </h2>
+      <h2>Qustions Two </h2>
+      <h2>Qustions Three </h2>
+    </div>
+
        
     </>
   );
