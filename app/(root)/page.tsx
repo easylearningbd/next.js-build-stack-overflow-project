@@ -25,7 +25,7 @@ const questions = [
     title: "How to learn JavaScript?",
     description: "I want to learn JavaScript, can anyone help me?",
     tags: [
-      { _id: "1", name: "React" },
+      { _id: "1", name: "JavaScript" },
       { _id: "2", name: "JavaScript" },
     ],
     author: { _id: "1", name: "John Doe" },
@@ -42,10 +42,17 @@ interface SearchParams {
 }
 
 const Home = async ({searchParams}: SearchParams) => { 
-  const { query = "" } = await searchParams;
+  const { query = "", filter = "" } = await searchParams;
 
-  const filteredQuestions = questions.filter(( question ) => 
-  question.title.toLowerCase().includes(query?.toLowerCase()) );
+  const filteredQuestions = questions.filter(( question ) => {
+    const matchesQuery = question.title
+      .toLowerCase()
+      .includes(query.toLowerCase());
+      const matchesFilter = filter
+      ? question.tags[0].name.toLowerCase() === filter.toLowerCase()
+      : true;
+      return matchesQuery && matchesFilter;
+  });
 
   return (
     <>
