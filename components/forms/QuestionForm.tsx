@@ -19,6 +19,7 @@ import { AskQuestionSchema } from "@/lib/validations";
 import { title } from "process";
 import dynamic from "next/dynamic";
 import { MDXEditorMethods } from "@mdxeditor/editor";
+import { z } from "zod";
 
 const Editor = dynamic(() => import("@/components/editor"), {
   ssr: false,
@@ -29,7 +30,7 @@ const QuestionForm = () => {
 
   const editorRef = useRef<MDXEditorMethods>(null); 
 
-  const form = useForm({
+  const form = useForm<z.infer<typeof AskQuestionSchema>>({
     resolver: zodResolver(AskQuestionSchema),
     defaultValues: {
       title: "",
@@ -37,6 +38,31 @@ const QuestionForm = () => {
       tags: [],
     },
   });
+
+  const handleInputKeyDown = ( e: React.KeyboardEvent<HTMLInputElement>,
+    field: { value: string[]}
+  ) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const tagInput = e.currentTarget.value.trim();
+
+        if (tagInput && tagInput.length < 15 && !field.value.includes(tagInput)) {
+          form.setValue("tags",[...field.value, tagInput]);
+          e.currentTarget.value = "";
+          form.clearErrors("tags");
+        } else if(tagInput.length > 15) {
+          form.setError("tags", {
+            type: "manual",
+            message: "Tag should be less then 15 characters",
+          });
+        } else if (field.value.includes(tagInput)) {
+          form.setError("tags", {
+            type: "manual",
+            message: "Tag Already exists"
+          });
+        }
+      }
+  };
 
   const handleCreateQuestion = () => {};
   
@@ -106,7 +132,7 @@ const QuestionForm = () => {
                   <Input
                     className="paragraph-regular background-light700_dark300 light-border-2 text-dark300_light700 no-focus min-h-[56px] border"
                     placeholder="Add tags..."
-                    {...field}
+                    onKeyDown={(e) => handleInputKeyDown(e, field)}
                   />
                   Tags
                 </div>
