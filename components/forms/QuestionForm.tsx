@@ -18,7 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AskQuestionSchema } from "@/lib/validations";
 import { title } from "process";
 
- 
+  
 
 const QuestionForm = () => {
 
@@ -76,7 +76,7 @@ const QuestionForm = () => {
               </FormControl>
               <FormDescription className="body-regular mt-2.5 text-light-500">
                 Introduce the problem and expand on what you&apos;ve put in the
-                title.
+                title. 
               </FormDescription>
               <FormMessage />
             </FormItem>
