@@ -10,9 +10,12 @@ interface Props {
     questions?: number;
     showCount?: boolean;
     compack?: boolean;
+    remove?: boolean;
+    isButton?:boolean;
+    handleRemove?: () => void;
 }
 
-const TagCard = ({ _id,name,questions,showCount,compack }: Props) => {
+const TagCard = ({ _id,name,questions,showCount,compack,remove,isButton,handleRemove }: Props) => {
     const iconClass = getDeviconClassName(name);
 
     return (

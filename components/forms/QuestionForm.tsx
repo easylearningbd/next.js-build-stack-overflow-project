@@ -20,6 +20,7 @@ import { title } from "process";
 import dynamic from "next/dynamic";
 import { MDXEditorMethods } from "@mdxeditor/editor";
 import { z } from "zod";
+import TagCard from "../cards/TagCard";
 
 const Editor = dynamic(() => import("@/components/editor"), {
   ssr: false,
@@ -64,7 +65,21 @@ const QuestionForm = () => {
       }
   };
 
-  const handleCreateQuestion = () => {};
+  const handleTagRemove = (tag: string, field: { value: string[] }) => {
+    const newTags = field.value.filter((t) => t !== tag);
+
+    form.setValue("tags", newTags);
+    if (newTags.length === 0) {
+      form.setError("tags",{
+        type: "manual",
+        message: "Tags are required"
+      }); 
+    }
+  }
+
+  const handleCreateQuestion = (data: z.infer<typeof AskQuestionSchema>) => {
+    console.log(data);
+  };
   
 
   return (
@@ -134,7 +149,25 @@ const QuestionForm = () => {
                     placeholder="Add tags..."
                     onKeyDown={(e) => handleInputKeyDown(e, field)}
                   />
-                  Tags
+                
+          {field.value.length > 0 && (
+            <div className="flex-start mt-2.5 flex-wrap gap-3">
+              {field?.value?.map((tag:string) => (
+                <TagCard
+                  key={tag}
+                  _id={tag}
+                  name={tag}
+                  compack
+                  remove
+                  isButton
+                  handleRemove = {() => handleTagRemove(tag,field)} 
+                  />
+              ))}
+
+            </div>
+          )}
+
+
                 </div>
               </FormControl>
               <FormDescription className="body-regular mt-2.5 text-light-500">
