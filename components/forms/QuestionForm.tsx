@@ -17,10 +17,17 @@ import { Input } from "../ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AskQuestionSchema } from "@/lib/validations";
 import { title } from "process";
+import dynamic from "next/dynamic";
+import { MDXEditorMethods } from "@mdxeditor/editor";
 
+const Editor = dynamic(() => import("@/components/editor"), {
+  ssr: false,
+});
   
 
 const QuestionForm = () => {
+
+  const editorRef = useRef<MDXEditorMethods>(null); 
 
   const form = useForm({
     resolver: zodResolver(AskQuestionSchema),
@@ -72,7 +79,11 @@ const QuestionForm = () => {
                 <span className="text-primary-500">*</span>
               </FormLabel>
               <FormControl>
-                Editor Here 
+               <Editor
+                value={field.value}
+                editorRef={editorRef}
+                fieldChange={field.onChange}
+               />
               </FormControl>
               <FormDescription className="body-regular mt-2.5 text-light-500">
                 Introduce the problem and expand on what you&apos;ve put in the
