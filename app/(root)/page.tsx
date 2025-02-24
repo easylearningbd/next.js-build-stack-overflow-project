@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import ROUTES from '@/constants/routes';
 import handleError from '@/lib/handlers/error';
 import { ForbiddenError, NotFoundError, ValidationError } from '@/lib/http-errors';
+import dbConnect from '@/lib/mongoose';
 import Link from 'next/link';
 import React from 'react';
 
@@ -56,10 +57,7 @@ interface SearchParams {
 
   const test = async () => {
     try {
-      throw new ValidationError({
-        title: ["Required"],
-        tags: [' "Javascript" is not a valid tag' ],
-      })
+      await dbConnect();
     } catch (error) {
       return handleError(error);
     }
@@ -69,8 +67,8 @@ interface SearchParams {
 
 const Home = async ({searchParams}: SearchParams) => { 
 
-  const result = await test();
-  console.log(result);
+   await test();
+  
 
 
 
