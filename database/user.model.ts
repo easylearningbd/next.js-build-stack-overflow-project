@@ -22,7 +22,7 @@ const UserSchema = new Schema<IUser>(
         location: { type: String },
         portfolio: { type: String },
         reputation: { type: Number, default: 0 }, 
-    },
+    }, 
     {
      timestamps: true
     },
