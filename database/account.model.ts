@@ -8,7 +8,7 @@ export interface IAccount {
     provider: string; // 'github' , 'google' ,'credentials'
     providerAccountId?: string;
 }
-
+ 
 export interface IAccountDoc extends IAccount, Document {}
 const AccountSchema = new Schema<IAccount>(
     {
