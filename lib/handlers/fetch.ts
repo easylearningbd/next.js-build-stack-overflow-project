@@ -52,7 +52,7 @@ export async function fetchHandler<T>(
             logger.warn(`Request to ${url} time out`);
         } else {
             logger.error(`Error fetching ${url}: ${error.message}`);
-        }
+        } 
 
         return handleError(error) as ActionResponse<T>
         
