@@ -65,7 +65,7 @@ export async function POST(request: Request){
         await Account.create(
             [
                 {
-                    userIduserId: existingUser._id,
+                    userId: existingUser._id,
                     name,
                     image,
                     provider,
