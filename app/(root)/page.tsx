@@ -68,8 +68,8 @@ interface SearchParams {
 
 const Home = async ({searchParams}: SearchParams) => { 
 
-  const session = await auth();
-  console.log("Session: ", session);
+  // const session = await auth();
+  // console.log("Session: ", session);
   
 
 
