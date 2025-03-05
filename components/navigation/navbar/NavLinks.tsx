@@ -7,9 +7,8 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 
-const NavLinks = ({ isMobileNav = false } : {isMobileNav?: boolean}) => {
-    const pathname = usePathname();
-    const userId = 1; 
+const NavLinks = ({ isMobileNav = false, userId } : {isMobileNav?: boolean, userId?: string}) => {
+    const pathname = usePathname(); 
      
     
 return (
