@@ -4,6 +4,8 @@ import action from "../handlers/action";
 import { AskQuestionSchema } from "../validations";
 import handleError from "../handlers/error";
 import mongoose from 'mongoose';
+import Tag from "@/database/tag.model";
+import TagQuestion from "@/database/tag-question.model";
 
 export async function createQuestion(
     params: CreateQuestionParams
@@ -34,12 +36,39 @@ export async function createQuestion(
         throw new Error("Failed to create question");
     }
 
+    const tagIds: mongoose.Types.ObjectId[] = [];
+    const tagQuestionDocuments = [];
 
-    } catch (error) {
-        
+    for(const tag of tags) {
+        const existingTag = await Tag.findOneAndUpdate(
+            { name: { $regex: new RegExp('^${tag}$',"i") }},
+            { $setOnInsert: {name: tag}, $inc: { question: 1 } },
+            { upsert: true, new: true, session }
+        );
+
+        tagIds.push(existingTag._id);
+        tagQuestionDocuments.push({
+            tag: existingTag._id,
+            question: question._id
+        });
     }
 
+    await TagQuestion.insertMany(tagQuestionDocuments,{ session });
 
+    await Question.findByIdAndUpdate(
+        question._id,
+        { $push: {tags: {$each: tagIds } } },
+        { session }
+    );
 
+    await session.commitTransaction();
+    return { success: true, data: JSON.parse(JSON.stringify(question))};
+
+    } catch (error) {
+        await session.abortTransaction();
+        return handleError(error) as ErrorResponse;
+    } finally {
+        session.endSession();
+    } 
 
 }
