@@ -1,7 +1,7 @@
 "use server";
 import Question from "@/database/question.model";
 import action from "../handlers/action";
-import { AskQuestionSchema, EditQuestionSchema } from "../validations";
+import { AskQuestionSchema, EditQuestionSchema, GetQuestionSchema } from "../validations";
 import handleError from "../handlers/error";
 import mongoose from 'mongoose';
 import Tag, { ITagDoc } from "@/database/tag.model";
@@ -171,5 +171,34 @@ export async function editQuestion(
     } finally {
         session.endSession();
     }  
+
+}
+
+export async function getQuestion(
+    params: GetQuestionParams
+) : Promise<ActionResponse<Question>> {
+
+    const validationResult = await action({
+        params,
+        schema: GetQuestionSchema,
+        authorize: true,
+    });
+
+    if (validationResult instanceof Error) {
+        return handleError(validationResult) as ErrorResponse;
+    }
+
+    const { questionId } = validationResult.params!;
+
+    try { 
+        const question = await Question.findById(questionId).populate("tags");
+
+        if (!question) {
+            throw new Error("Question not found");
+        }
+    return { success: true, data: JSON.parse(JSON.stringify(question)) }
+    } catch (error) {
+        return handleError(error) as ErrorResponse;
+    } 
 
 }

@@ -132,3 +132,7 @@ export const SignInWithOAuthSchema = z.object({
 export const EditQuestionSchema = AskQuestionSchema.extend({
   questionId: z.string().min(1, {message: "Question ID is required"}),
 });
+
+export const GetQuestionSchema = z.object({
+  questionId: z.string().min(1, {message: "Question ID is required"}),
+});
