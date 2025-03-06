@@ -4,7 +4,7 @@ import action from "../handlers/action";
 import { AskQuestionSchema, EditQuestionSchema } from "../validations";
 import handleError from "../handlers/error";
 import mongoose from 'mongoose';
-import Tag from "@/database/tag.model";
+import Tag, { ITagDoc } from "@/database/tag.model";
 import TagQuestion from "@/database/tag-question.model";
 
 export async function createQuestion(
@@ -95,11 +95,56 @@ export async function editQuestion(
     session.startTransaction();
 
     try {
-        
-    } catch (error) {
-        
+        const question = await Question.findById(questionId).populate("tags");
+
+        if (!question) {
+            throw new Error("Question not found");
+        }
+
+        if (question.author.toString() !== userId) {
+            throw new Error("Unauthorized");
+        }
+
+        if (question.title !== title || question.content !== content) {
+            question.title = title;
+            question.content = content;
+            await question.save({session});
+        }
+
+    const tagsToAdd = tags.filter(
+        (tag) => !question.tags.includes(tag.toLowerCase())
+    );
+
+    const tagsToRemove = question.tags.filter(
+        (tag: ITagDoc) => !tags.includes(tag.name.toLowerCase())
+    );
+    
+    const newTagDcouments = []
+
+    if (tagsToAdd.length > 0) {
+        for(const tag of tagsToAdd) {
+            const existingTag = await Tag.findOneAndUpdate(
+                { name: { $regex: new RegExp('^${tag}$',"i") }},
+                { $setOnInsert: {name: tag}, $inc: { question: 1 } },
+                { upsert: true, new: true, session }
+            );
+    
+            if (existingTag) {
+                newTagDcouments.push({
+                    tag: existingTag._id,
+                    question: questionId
+                });
+             question.tags.push(existingTag._id);
+            } 
+        }
     }
 
-     
+        
+    } catch (error) {
+        await session.abortTransaction();
+        return handleError(error) as ErrorResponse;
+    } finally {
+        session.endSession();
+    }  
 
 }
