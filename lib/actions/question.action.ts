@@ -139,7 +139,32 @@ export async function editQuestion(
         }
     }
 
-        
+    if (tagsToRemove.length > 0) {
+        const tagIdsToRemove = tagsToRemove.map((tag: ITagDoc) => tag._id);
+
+        await Tag.updateMany(
+            { _id: { $in: tagIdsToRemove} },
+            { $inc: { question: -1 } },
+            { session }
+        );
+
+        await TagQuestion.deleteMany(
+            { tag: {$in: tagIdsToRemove}, question: questionId},
+            {session}
+        );
+
+        question.tags = question.tags.filter(( tagId: mongoose.Types.ObjectId) => !tagsToRemove.includes(tagId)); 
+    }
+
+    if (newTagDcouments.length > 0) {
+        await TagQuestion.insertMany(newTagDcouments, {session});
+    }
+
+    await question.save({ session });
+    await session.commitTransaction();
+
+    return { success: true, data: JSON.parse(JSON.stringify(question))};
+ 
     } catch (error) {
         await session.abortTransaction();
         return handleError(error) as ErrorResponse;
