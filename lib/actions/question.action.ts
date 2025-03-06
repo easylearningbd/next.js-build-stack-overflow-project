@@ -1,7 +1,7 @@
 "use server";
 import Question from "@/database/question.model";
 import action from "../handlers/action";
-import { AskQuestionSchema } from "../validations";
+import { AskQuestionSchema, EditQuestionSchema } from "../validations";
 import handleError from "../handlers/error";
 import mongoose from 'mongoose';
 import Tag from "@/database/tag.model";
@@ -70,5 +70,36 @@ export async function createQuestion(
     } finally {
         session.endSession();
     } 
+
+}
+
+
+export async function editQuestion(
+    params: EditQuestionParams
+) : Promise<ActionResponse<Question>> {
+
+    const validationResult = await action({
+        params,
+        schema: EditQuestionSchema,
+        authorize: true,
+    });
+
+    if (validationResult instanceof Error) {
+        return handleError(validationResult) as ErrorResponse;
+    }
+
+    const { title, content, tags,questionId} = validationResult.params!;
+    const userId = validationResult?.session?.user?.id;
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        
+    } catch (error) {
+        
+    }
+
+     
 
 }
