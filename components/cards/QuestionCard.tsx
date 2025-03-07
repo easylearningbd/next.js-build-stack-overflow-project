@@ -8,7 +8,7 @@ import Metric from '../Metric';
 interface Props {
     question : Question;
 }
-
+ 
 const QuestionCard = ({ question: { _id,title,tags,author,upvotes,answers,views,createdAt },} : Props) => {
     return (
 <div className='card-wrapper rounded-[10px] p-9 sm:px-11'>

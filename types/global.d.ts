@@ -11,10 +11,10 @@ interface Author {
 
 interface Question {
     _id: string;
-    title: string;
+    title: string; 
     content:string;
     tags: Tag[];
-    author: Author;
+    author: Author; 
     upvotes: number;
     answers: number;
     views: number;
