@@ -1,5 +1,5 @@
 "use server";
-import Question from "@/database/question.model";
+import Question, { IQuestionDoc } from "@/database/question.model";
 import action from "../handlers/action";
 import { AskQuestionSchema, EditQuestionSchema, GetQuestionSchema } from "../validations";
 import handleError from "../handlers/error";
@@ -41,7 +41,7 @@ export async function createQuestion(
 
     for(const tag of tags) {
         const existingTag = await Tag.findOneAndUpdate(
-            { name: { $regex: new RegExp('^${tag}$',"i") }},
+            { name: { $regex: new RegExp(`^${tag}$`,"i") }},
             { $setOnInsert: {name: tag}, $inc: { question: 1 } },
             { upsert: true, new: true, session }
         );
@@ -76,7 +76,7 @@ export async function createQuestion(
 
 export async function editQuestion(
     params: EditQuestionParams
-) : Promise<ActionResponse<Question>> {
+) : Promise<ActionResponse<IQuestionDoc>> {
 
     const validationResult = await action({
         params,
@@ -112,20 +112,21 @@ export async function editQuestion(
         }
 
     const tagsToAdd = tags.filter(
-        (tag) => !question.tags.includes(tag.toLowerCase())
+        (tag) => !question.tags.some((t:ITagDoc) => 
+         t.name.toLowerCase().includes(tag.toLowerCase()) )  
     );
 
     const tagsToRemove = question.tags.filter(
-        (tag: ITagDoc) => !tags.includes(tag.name.toLowerCase())
+        (tag: ITagDoc) => !tags.some((t) => t.toLowerCase() === tag.name.toLowerCase()) 
     );
     
-    const newTagDcouments = []
+    const newTagDcouments = [];
 
     if (tagsToAdd.length > 0) {
         for(const tag of tagsToAdd) {
             const existingTag = await Tag.findOneAndUpdate(
-                { name: { $regex: new RegExp('^${tag}$',"i") }},
-                { $setOnInsert: {name: tag}, $inc: { question: 1 } },
+                { name: { $regex: `^${tag}$`, $options: "i"  }},
+                { $setOnInsert: {name: tag}, $inc: { questions: 1 } },
                 { upsert: true, new: true, session }
             );
     
@@ -144,7 +145,7 @@ export async function editQuestion(
 
         await Tag.updateMany(
             { _id: { $in: tagIdsToRemove} },
-            { $inc: { question: -1 } },
+            { $inc: { questions: -1 } },
             { session }
         );
 
@@ -153,7 +154,7 @@ export async function editQuestion(
             {session}
         );
 
-        question.tags = question.tags.filter(( tagId: mongoose.Types.ObjectId) => !tagsToRemove.includes(tagId)); 
+        question.tags = question.tags.filter(( tag: mongoose.Types.ObjectId) => !tagIdsToRemove.some((id: mongoose.Types.ObjectId) => id.equals(tag._id))); 
     }
 
     if (newTagDcouments.length > 0) {
