@@ -1,11 +1,11 @@
 "use server";
 import Question, { IQuestionDoc } from "@/database/question.model";
 import action from "../handlers/action";
-import { AskQuestionSchema, EditQuestionSchema, GetQuestionSchema } from "../validations";
+import { AskQuestionSchema, EditQuestionSchema, GetQuestionSchema, PaginatedSearchParamsSchema } from "../validations";
 import handleError from "../handlers/error";
-import mongoose from 'mongoose';
+import mongoose, { FilterQuery } from 'mongoose';
 import Tag, { ITagDoc } from "@/database/tag.model";
-import TagQuestion from "@/database/tag-question.model";
+import TagQuestion from "@/database/tag-question.model"; 
 
 export async function createQuestion(
     params: CreateQuestionParams
@@ -201,5 +201,39 @@ export async function getQuestion(
     } catch (error) {
         return handleError(error) as ErrorResponse;
     } 
+
+}
+
+
+export async function getQuestions(
+    params: PaginatedSearchParams
+) : Promise<ActionResponse<{ questions: Question[]; isNext: boolean }>> {
+    const validationResult = await action({
+        params,
+        schema: PaginatedSearchParamsSchema, 
+    });
+    
+    if (validationResult instanceof Error) {
+        return handleError(validationResult) as ErrorResponse;
+    }
+
+    const { page = 1, pageSize = 10, query, filter } = params;
+    const skip = (Number(page) - 1) * pageSize;
+    const limit = Number(pageSize);
+
+    const filterQuery: FilterQuery<typeof Question> = {};
+
+    if (filter === "recommended") {
+        return { success: true, data: { questions: [], isNext:false }}
+    }
+
+    if (query) {
+        filterQuery.$or = [
+            { title: { $regex: new RegExp(query, "i") } }, 
+            { content: { $regex: new RegExp(query, "i") } },
+        ];
+    }
+
+
 
 }
