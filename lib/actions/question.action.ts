@@ -234,6 +234,45 @@ export async function getQuestions(
         ];
     }
 
+    let sortCriteria = {};
 
+    switch (filter) {
+        case "newest":
+            sortCriteria = { createdAt: -1};
+            break;
+        case "unanswered":
+            filterQuery.answers = 0;
+            sortCriteria = { createdAt: -1 };
+            break;
+        case "popular":
+            sortCriteria = { upvotes: -1 };
+            break;
+        default:
+            sortCriteria = { createdAt: -1 };
+            break 
+    }
+
+
+    try {
+
+        const totalQuestions = await Question.countDocuments(filterQuery);
+
+        const questions = await Question.find(filterQuery)
+            .populate("tags", "name")
+            .populate("author", "name image")
+            .lean()
+            .sort(sortCriteria)
+            .skip(skip)
+            .limit(limit);    
+        
+        const isNext = totalQuestions > skip + questions.length;
+        return {
+            success: true,
+            data: { questions: JSON.parse(JSON.stringify(questions)) ,isNext}
+        }; 
+        
+    } catch (error) { 
+        return handleError(error) as ErrorResponse;
+    } 
 
 }
