@@ -10,7 +10,7 @@ interface Props {
     imgSrc: string;
     placeholder: string;
     otherClasses?: string
-}
+} 
 
 const LocalSearch = ({ route,imgSrc,placeholder,otherClasses }: Props) => {
     const pathname = usePathname();
