@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 import { Button } from './ui/button';
+import { DEFAULT_EMPTY, DEFAULT_ERROR } from '@/constants/states';
 
 
 interface Props<T>{
@@ -76,12 +77,46 @@ const StateSkeleton = ({
 )
 
 
-const DataRenderer = () => {
-    return (
-        <div>
-            
-        </div>
-    );
-};
+const DataRenderer =  <T,>({
+    success,
+    error,
+    data,
+    empty = DEFAULT_EMPTY,
+    render,
+} : Props<T>) => {
+    if (!success) {
+        return (
+            <StateSkeleton
+                image={{
+                    light: "/images/light-error.png",
+                    dark: "/images/dark-error.png",
+                    alt: "Error state illustration",
+                }}
+                title={error?.message || DEFAULT_ERROR.title}
+                message={
+                    error?.details
+                    ? JSON.stringify(error.details, null, 2)
+                    : DEFAULT_ERROR.message
+                }
+                button={DEFAULT_ERROR.button} 
+            />
+        );
+    }
+
+    if (!data || data.length === 0)
+        return (
+            <StateSkeleton
+            image={{
+                light: "/images/light-illustration.png",
+                dark: "/images/dark-illustration.png",
+                alt: "Error state illustration",
+            }}
+            title={empty.title}
+            message={empty.message}
+            button={empty.button} 
+            />
+        );  
+     return <div>{render(data)}</div>  
+}
 
 export default DataRenderer;
