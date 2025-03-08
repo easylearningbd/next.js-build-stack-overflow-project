@@ -9,8 +9,6 @@ export function cn(...inputs: ClassValue[]) {
 export const techDescriptionMap: { [key: string]: string } = {
   javascript:
     "JavaScript is a powerful language for building dynamic, interactive, and modern web applications.",
-  laravel:
-  "laravel is a powerful language for building dynamic, interactive, and modern web applications.",
   typescript:
     "TypeScript adds strong typing to JavaScript, making it great for scalable and maintainable applications.",
   react:
@@ -36,11 +34,20 @@ export const techDescriptionMap: { [key: string]: string } = {
   aws: "AWS is a comprehensive cloud platform offering a wide range of services for deployment, storage, and more.",
 };
 
-export const getDeviconClassName = (techName: string) => {
+
+export const getTechDescription = (techName: string) => {
   const normalizedTechName = techName.replace(/[ .]/g, "").toLowerCase();
   return techDescriptionMap[normalizedTechName]
   ? `${techDescriptionMap[normalizedTechName]} colored`
   : `${techName} is a technology or tool widely used in web development, providing valuable features and capabilities` ;
+}
+
+
+export const getDeviconClassName = (techName: string) => {
+  const normalizedTechName = techName.replace(/[ .]/g, "").toLowerCase();
+  return techMap[normalizedTechName]
+  ? `${techMap[normalizedTechName]} colored`
+  : "devicon-devicon-plain";
 }
 
 
