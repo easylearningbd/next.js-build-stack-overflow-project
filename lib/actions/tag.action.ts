@@ -102,9 +102,28 @@ export const getTagQuestions = async (
         if (query) {
             filterQuery.title = { $regex: query, $options: "i"};
         }
+    
+    const totalQuestions = await Question.countDocuments(filterQuery);
 
-        
-        
+    const questions = await Question.find(filterQuery)
+        .select("_id title views answers upvotes downvotes author createdAt")
+        .populate([
+            { path: "author", select: "name image"},
+            { path: "tags", select: "name" }
+        ])
+        .skip(skip)
+        .limit(limit);
+
+    const isNext = totalQuestions > skip + questions.length;
+
+    return {
+        success: true,
+        data: {
+            tag: JSON.parse(JSON.stringify(tag)),
+            questions: JSON.parse(JSON.stringify(questions)),
+            isNext,
+        }
+    };        
     } catch (error) { 
         return handleError(error) as ErrorResponse;
     } 
