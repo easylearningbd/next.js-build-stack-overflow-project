@@ -1,4 +1,5 @@
 import TagCard from '@/components/cards/TagCard';
+import Preview from '@/components/editor/Preview';
 import Metric from '@/components/Metric';
 import UserAvatar from '@/components/UserAvatar';
 import ROUTES from '@/constants/routes';
@@ -142,7 +143,7 @@ return (
     /> 
    </div>
 
-   <h1>Main question Content </h1>
+    <Preview content={content} />
 
     <div className='mt-8 flex flex-wrap gap-2'>
         {tags.map((tag: Tag) => (
