@@ -1,3 +1,8 @@
+import QuestionCard from '@/components/cards/QuestionCard';
+import DataRenderer from '@/components/DataRenderer';
+import LocalSearch from '@/components/search/LocalSearch';
+import ROUTES from '@/constants/routes';
+import { EMPTY_QUESTION } from '@/constants/states';
 import { getTagQuestions } from '@/lib/actions/tag.action';
 import React from 'react';
 
@@ -13,13 +18,41 @@ const page = async ({ params, searchParams }: RouteParams) => {
     });
  
     const { tag, questions} = data || {};
-    console.log(tag,questions);
+    //console.log(tag,questions);
  
 
     return (
-        <div>
-            
-        </div>
+        <>
+    <section className='flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center'>
+        <h1 className='h1-bold text-dark100_light900'>{tag?.name}</h1> 
+    </section>   
+
+
+    <section className='mt-11'>
+      <LocalSearch
+        route={ROUTES.TAG(id)}
+        imgSrc="/icons/search.svg"
+        placeholder="Search questions..." 
+        otherClasses="flex-1"      
+      />
+    </section>
+
+    <DataRenderer
+      success={success}
+      error={error}
+      data={questions}
+      empty={EMPTY_QUESTION}
+      render={(questions) => (
+        <div className='mt-10 flex w-full flex-col gap-6'>
+        {questions.map((question) => ( 
+          <QuestionCard key={question._id} question={question} />
+        ))}
+      </div>
+      )} 
+     /> 
+
+
+        </>
     );
 };
 
