@@ -1,6 +1,6 @@
-import { Tag } from '@/database';
+import { Tag,Question } from '@/database';
 import action from '../handlers/action';
-import { PaginatedSearchParamsSchema } from '../validations';
+import { GetTagQuestionsSchema, PaginatedSearchParamsSchema } from '../validations';
 import handleError from '../handlers/error';
 import { FilterQuery } from 'mongoose';
 
@@ -66,6 +66,44 @@ export const getTags = async (
             success: true,
             data: { tags: JSON.parse(JSON.stringify(tags)) ,isNext}
         }; 
+        
+    } catch (error) { 
+        return handleError(error) as ErrorResponse;
+    } 
+
+};
+
+export const getTagQuestions = async (
+    params: GetTagQuestionsParams
+) : Promise<ActionResponse<{ tag: Tag; questions: Question[]; isNext: boolean }>> => {
+
+    const validationResult = await action({
+        params,
+        schema: GetTagQuestionsSchema, 
+    });
+    
+    if (validationResult instanceof Error) {
+        return handleError(validationResult) as ErrorResponse;
+    }
+
+    const { page = 1, pageSize = 10, query, tagId } = params;
+    const skip = (Number(page) - 1) * pageSize;
+    const limit = Number(pageSize); 
+
+    try {
+
+        const tag = await Tag.findById(tagId);
+        if(!tag) throw new Error("Tag not found");
+
+        const filterQuery: FilterQuery<typeof Question> = {
+            tags: { $in: [tagId]}
+        }; 
+
+        if (query) {
+            filterQuery.title = { $regex: query, $options: "i"};
+        }
+
+        
         
     } catch (error) { 
         return handleError(error) as ErrorResponse;
