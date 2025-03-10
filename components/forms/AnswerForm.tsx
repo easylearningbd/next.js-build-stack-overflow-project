@@ -1,6 +1,6 @@
 "use client";
    
-import React, { useRef, useTransition } from "react";
+import React, { useRef, useState, useTransition } from "react";
 import { useForm } from "react-hook-form"; 
 import { ReloadIcon} from "@radix-ui/react-icons"
 import { Button } from "../ui/button";
@@ -15,7 +15,7 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AskQuestionSchema } from "@/lib/validations";
+import { AnswerSchema, AskQuestionSchema } from "@/lib/validations";
 import { title } from "process";
 import dynamic from "next/dynamic";
 import { MDXEditorMethods } from "@mdxeditor/editor";
@@ -31,20 +31,31 @@ const Editor = dynamic(() => import("@/components/editor"), {
 });
 
 const AnswerForm = () => {
-
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const editorRef = useRef<MDXEditorMethods>(null); 
 
-    const form = useForm<z.infer<typeof AskQuestionSchema>>({
-    resolver: zodResolver(AskQuestionSchema),
+    const form = useForm<z.infer<typeof AnswerSchema>>({
+    resolver: zodResolver(AnswerSchema),
     defaultValues: {
         content: "", 
       },
     });
+
+    const handleSubmit = async (values: z.infer<typeof AnswerSchema>) => {
+        console.log(values)
+    }
  
     return (
 <div>
+    <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center sm:gap-2">
+        <h3 className="paragraph-semibold text-dark400_light800">Write your answer here </h3>  
+    </div>
+
+
     <Form {...form}>
-        <form className="mt-6 flex w-full flex-col gap-10"  >
+        <form 
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className="mt-6 flex w-full flex-col gap-10"  >
 
      <FormField
             control={form.control}
@@ -57,16 +68,24 @@ const AnswerForm = () => {
                 editorRef={editorRef}
                 fieldChange={field.onChange}
                 />
-                </FormControl>
-                <FormDescription className="body-regular mt-2.5 text-light-500">
-                Introduce the problem and expand on what you&apos;ve put in the
-                title. 
-                </FormDescription>
+                </FormControl> 
                 <FormMessage />
             </FormItem>
             )}
         /> 
 
+    <div className="flex justify-end">
+        <Button type="submit" className="primary-gradient w-fit">
+            {isSubmitting ? (
+                <>
+                <ReloadIcon className="mr-2 size-4 animate-spin"/>
+                Posting...
+                </>
+            ): (
+                "Post Answer"
+            )}
+        </Button>
+    </div>
 
         </form>
         </Form>
