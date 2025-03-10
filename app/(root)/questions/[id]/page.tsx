@@ -8,6 +8,7 @@ import Link from 'next/link';
 import React from 'react';
 import { getQuestion, incrementViews } from '@/lib/actions/question.action';
 import { redirect } from 'next/navigation';
+import AnswerForm from '@/components/forms/AnswerForm';
 
  
 
@@ -83,6 +84,10 @@ return (
             />
         )) }
     </div>
+
+    <section className='my-5'>
+        <AnswerForm/>
+    </section>
         
     </>
 );
