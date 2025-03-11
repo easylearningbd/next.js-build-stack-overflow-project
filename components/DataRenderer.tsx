@@ -85,7 +85,7 @@ const DataRenderer =  <T,>({
     render,
 } : Props<T>) => {
     if (!success) {
-        return (
+        return ( 
             <StateSkeleton
                 image={{
                     light: "/images/light-error.png",
