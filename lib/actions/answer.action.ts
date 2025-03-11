@@ -99,11 +99,27 @@ export async function getAnswers( params: GetAnswersParams) : Promise<ActionResp
     }
 
     try {
+        const totalAnswers = await Answer.countDocuments({ question: questionId });
+
+        const answers = await Answer.find({ question: questionId })
+            .populate("author", "_id name image")
+            .sort(sortCriteria)
+            .skip(skip)
+            .limit(limit)
+        
+        const isNext = totalAnswers > skip + answers.length;
+
+        return {
+            success: true,
+            data: {
+                answers: JSON.parse(JSON.stringify(answers)),
+                isNext,
+                totalAnswers,
+            },
+        };
         
     } catch (error) {
-        
-    }
-
-
+        return handleError(error) as ErrorResponse;
+    } 
 
 }
