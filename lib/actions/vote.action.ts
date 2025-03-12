@@ -3,7 +3,7 @@ import mongoose, { ClientSession } from "mongoose";
 import action from "../handlers/action"
 import handleError from "../handlers/error";
 import { CreateVoteSchema, UpdateVoteCountSchema } from "../validations"
-import { Answer, Question } from "@/database";
+import { Answer, Question, Vote } from "@/database";
 
 
 export async function updateVoteCount( params: UpdateVoteCountParams, session?: ClientSession) : Promise<ActionResponse> {
@@ -63,7 +63,44 @@ export async function createVote( params: CreateVoteParams)
     session.startTransaction();
 
     try {
+        const existingVote = await Vote.findOne({
+            author: userId,
+            actionId: targetId,
+            actionType: targetType,
+        }).session(session);
 
+    if (existingVote) {
+        if (existingVote.voteType === voteType) {
+            // If the user has already voted with the same voteType, remove the vote
+            await Vote.deleteOne({ _id:existingVote._id }).session(session);
+            await updateVoteCount(
+                { targetId, targetType, voteType, change: -1},
+                session
+            );
+            
+        }else {
+            /// If the user has already voted with a dfferent voteType, Update the vote
+            await Vote.findByIdAndUpdate(
+                existingVote._id,
+                { voteType },
+                {new: true, session}
+            );
+            await updateVoteCount(
+                { targetId, targetType, voteType, change: 1},
+                session
+            );
+        }
+    } else {
+        // if the user has not voted yet, create a new vote
+        await Vote.create([{ targetId, targetType, voteType, change: 1}],{session});
+        await updateVoteCount(
+            {targetId, targetType, voteType, change: 1},
+            session
+        );
+    }
+    await session.commitTransaction();
+    session.endSession();
+    return {success: true};
         
     } catch (error) {
         await session.abortTransaction();

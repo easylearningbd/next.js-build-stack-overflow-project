@@ -49,7 +49,7 @@ interface GetAnswersParams extends PaginatedSearchParams {
 
 interface CreateVoteParams {
     targetId: string;
-    tartgetType: "question" | "answer";
+    targetType: "question" | "answer";
     voteType: "upvote" | "downvote";
 }
 
