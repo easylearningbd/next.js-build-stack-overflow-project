@@ -1,4 +1,5 @@
 "use client"
+import { toast } from '@/hooks/use-toast';
 import { formatNumber } from '@/lib/utils';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
@@ -18,7 +19,33 @@ const Votes = ({upvotes,downvotes,hasupVoted,hasdownVoted }: Params) => {
     const [isLoading, setIsLoading] = useState(false); 
 
     const handleVote = async (voteType: "upvote" | "downvote") => {
+        if(!userId)
+            return toast({
+            title: "Please login to vote",
+            description: "Only logged-in users can vote",
+         });
+         setIsLoading(true);
 
+    try {
+        const successMessage = 
+        voteType === "upvote"
+        ? `Upvote ${!hasupVoted ? "added" : "removed"} successfully`
+        : `Downvote ${!hasdownVoted ? "added" : "removed"} successfully`;
+
+    toast({
+        title: successMessage,
+        description: "Your vote has been recorded",
+    });
+        
+    } catch (error) {
+        toast({
+            title: "Faidled to vote",
+            description: "An error occurred while voting",
+            variant: "destructive"
+        });
+    } finally {
+        setIsLoading(false);
+     } 
     }
 
     return (
@@ -50,7 +77,7 @@ const Votes = ({upvotes,downvotes,hasupVoted,hasdownVoted }: Params) => {
             alt='downvote'
             className={`cursor-pointer ${isLoading && "opacity-50"}`}
             aria-label='Downvote'
-            onClick={() => !isLoading && handleVote("upvote")}  
+            onClick={() => !isLoading && handleVote("downvote")}  
         />
 
         <div className='flex-center background-light700_dark400 min-w-5 rounded-sm p-1'>
