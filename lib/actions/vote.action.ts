@@ -1,8 +1,45 @@
 "use server"
-import mongoose from "mongoose";
+import mongoose, { ClientSession } from "mongoose";
 import action from "../handlers/action"
 import handleError from "../handlers/error";
-import { CreateVoteSchema } from "../validations"
+import { CreateVoteSchema, UpdateVoteCountSchema } from "../validations"
+import { Answer, Question } from "@/database";
+
+
+export async function updateVoteCount( params: UpdateVoteCountParams, session?: ClientSession) : Promise<ActionResponse> {
+
+    const validationResult = await action({
+        params,
+        schema: UpdateVoteCountSchema, 
+    });
+
+    if (validationResult instanceof Error) {
+        return handleError(validationResult) as ErrorResponse;
+    }
+
+    const { targetId, targetType, voteType,change } = validationResult.params!;
+
+    const Model = targetType === "question" ? Question : Answer;
+    const voteField = voteType === "upvote" ? "upvote" : "downvote";
+
+    try {
+        const result = await Model.findByIdAndUpdate(
+            targetId,
+            { $inc: {[voteField]: change} },
+            { new: true, session}
+        );
+
+        if(!result)
+            return handleError( 
+        new Error("Failed to update vote count")) as ErrorResponse;
+
+        return { success: true }; 
+
+    } catch (error) {
+        return handleError(error) as ErrorResponse;
+    } 
+}
+
 
 export async function createVote( params: CreateVoteParams)
  : Promise<ActionResponse> {
@@ -26,7 +63,7 @@ export async function createVote( params: CreateVoteParams)
     session.startTransaction();
 
     try {
-        
+
         
     } catch (error) {
         await session.abortTransaction();
