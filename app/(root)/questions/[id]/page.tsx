@@ -5,13 +5,14 @@ import UserAvatar from '@/components/UserAvatar';
 import ROUTES from '@/constants/routes';
 import { formatNumber, getTimeStamp } from '@/lib/utils';
 import Link from 'next/link';
-import React from 'react';
+import React, { Suspense } from 'react';
 import { getQuestion, incrementViews } from '@/lib/actions/question.action';
 import { redirect } from 'next/navigation';
 import AnswerForm from '@/components/forms/AnswerForm';
 import { getAnswers } from '@/lib/actions/answer.action';
 import AllAnswers from '@/components/answers/AllAnswers';
 import Votes from '@/components/votes/Votes';
+import { hasVoted } from '@/lib/actions/vote.action';
 
  
 
@@ -32,7 +33,12 @@ const QuestionDetails = async ({ params }: RouteParams) => {
         filter: "latest"
     });
 
-    console.log("Answers", answersResult);
+    //console.log("Answers", answersResult);
+
+    const hasVotedPromise = hasVoted({
+        targetId:question._id,
+        targetType: "question"
+    });
 
     const { author,createdAt,answers,views,tags,content,title } = question;
 
@@ -54,12 +60,15 @@ return (
 
     <div className='flex justify-end'>
         {/* <p>Votes</p> */}
+    <Suspense>
     <Votes
-        upvotes={question.upvotes}
-        hasupVoted={true}
-        downvotes={question.downvotes}
-        hasdownVoted={false} 
+        targetType="question"
+        upvotes={question.upvotes} 
+        downvotes={question.downvotes} 
+        targetId={question._id}
+        hasVotedPromise={hasVotedPromise}
     />
+    </Suspense>
 
     </div> 
       </div>
