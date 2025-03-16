@@ -3,7 +3,7 @@
 import { Collection, Question } from "@/database";
 import action from "../handlers/action";
 import handleError from "../handlers/error";
-import { CollectionBaseSchema } from "../validations";
+import { CollectionBaseSchema, PaginatedSearchParamsSchema } from "../validations";
 import { revalidatePath } from "next/cache";
 import ROUTES from "@/constants/routes";
 
@@ -98,3 +98,45 @@ export async function hasSavedQuestion( params: CollectionBaseParams) : Promise<
     } 
 
 }
+
+export async function getSavedQuestions( params: PaginatedSearchParams) : Promise<ActionResponse<{ collection: Collection[]; isNext: boolean }>> {
+
+    const validationResult = await action({
+        params,
+        schema: PaginatedSearchParamsSchema,
+        authorize: true,
+    });
+
+    if (validationResult instanceof Error) {
+        return handleError(validationResult) as ErrorResponse;
+    }
+
+    const userId = validationResult.session?.user?.id;
+    const { page = 1, pageSize = 10, query,filter} = params;
+
+    const skip = (Number(page) -1 ) * pageSize;
+    const limit = pageSize;
+
+    const sortOptions = Record<string, Record<string, 1 | - 1>> = {
+        mostrecent: { "question.createdAt": -1},
+        oldest: { "question.createdAt": 1},
+        mostvoted: { "question.upvotes": -1},
+        mostviewed: { "question.views": -1},
+        mostanswered: { "question.answers": -1}, 
+    };
+
+    const sortCriteria = sortOptions[filter as keyof sortOptions] || {
+        "question.createdAt": -1
+    };
+
+    try {
+        
+    } catch (error) {
+        
+    }
+
+
+}
+
+
+

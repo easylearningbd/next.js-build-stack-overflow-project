@@ -66,7 +66,7 @@ return (
         </Link> 
         </div>
 
-    <div className='flex justify-end'>
+    <div className='flex justify-end gap-4'>
         {/* <p>Votes</p> */}
     <Suspense>
     <Votes
