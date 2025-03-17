@@ -27,7 +27,7 @@ const Community = async ({ searchParams }: RouteParams) => {
       <LocalSearch
         route={ROUTES.COMMUNITY}
         imgSrc="/icons/search.svg"
-        placeholder="Search questions..." 
+        placeholder="Search users..." 
         otherClasses="flex-1"      
       />
     </div>
@@ -38,7 +38,7 @@ const Community = async ({ searchParams }: RouteParams) => {
       data={users}
       empty={EMPTY_USERS}
       render={(users) => (
-        <div className='mt-10 flex w-full flex-col gap-6'>
+        <div className='mt-12 flex flex-wrap gap-6'>
         {users.map((user) => ( 
           <UserCard key={user._id} {...user} />
         ))}
