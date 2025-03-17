@@ -14,7 +14,7 @@ const Tags = async ({ searchParams }: RouteParams) => {
     const { success, data, error } = await getTags({
         page: Number(page) || 1,
         pageSize: Number(pageSize) || 10,
-        query,
+        query, 
         filter
     });
      
