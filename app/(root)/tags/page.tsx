@@ -1,6 +1,7 @@
 import TagCard from '@/components/cards/TagCard';
 import DataRenderer from '@/components/DataRenderer';
 import CommonFilter from '@/components/filters/CommonFilter';
+import Pagination from '@/components/Pagination';
 import LocalSearch from '@/components/search/LocalSearch';
 import { TagFilters } from '@/constants/filters';
 import ROUTES from '@/constants/routes';
@@ -13,12 +14,12 @@ const Tags = async ({ searchParams }: RouteParams) => {
 
     const { success, data, error } = await getTags({
         page: Number(page) || 1,
-        pageSize: Number(pageSize) || 10,
+        pageSize: Number(pageSize) || 3,
         query, 
         filter
     });
      
-    const { tags } = data || {};
+    const { tags,isNext } = data || {};
 
     // console.log("Tags", JSON.stringify(tags, null, 2)); 
 
@@ -60,7 +61,7 @@ const Tags = async ({ searchParams }: RouteParams) => {
     />   
     
     
-    
+    <Pagination page={page} isNext={isNext || false} /> 
     </>
         
     );
