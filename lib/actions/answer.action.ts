@@ -71,7 +71,7 @@ export async function getAnswers( params: GetAnswersParams) : Promise<ActionResp
     const validationResult = await action({
         params,
         schema: GetAnswersSchema,
-    });
+    }); 
 
     if (validationResult instanceof Error) {
         return handleError(validationResult) as ErrorResponse;
