@@ -1,7 +1,7 @@
 import { auth } from '@/auth';
 import ProfileLink from '@/components/user/ProfileLink';
 import UserAvatar from '@/components/UserAvatar';
-import { getUser } from '@/lib/actions/user.action';
+import { getUser, getUserQuestions } from '@/lib/actions/user.action';
 import { notFound } from 'next/navigation';
 import React from 'react';
 import dayjs from 'dayjs';
@@ -10,11 +10,17 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import Stats from '@/components/user/Stats';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import DataRenderer from '@/components/DataRenderer';
+import QuestionCard from '@/components/cards/QuestionCard';
+import Pagination from '@/components/Pagination';
+import { EMPTY_QUESTION } from '@/constants/states';
 
 
-const Profile = async ({ params }: RouteParams) => {
+const Profile = async ({ params, searchParams }: RouteParams) => {
     const {id} = await params;
     if (!id) notFound();
+
+    const { page, pageSize } = await searchParams;
 
     const loggedInUser = await auth();
     const { success, data, error} = await getUser({
@@ -30,6 +36,18 @@ const Profile = async ({ params }: RouteParams) => {
 
     const {user, totalQuestions,totalAnswers} = data!;
     // console.log(user);
+
+    const {
+        success: userQuestionsSuccess,
+        data: userQuestions,
+        error: userQuestionsError,
+    } = await getUserQuestions({
+        userId:id,
+        page: Number(page) || 1,
+        pageSize: Number(pageSize) || 2
+    });
+
+    const { questions, isNext: hasMoreQuestions} = userQuestions!;
     
    const {_id, name, image, portfolio,location, createdAt, username, bio} = user;
 
@@ -98,7 +116,7 @@ const Profile = async ({ params }: RouteParams) => {
 />
 
 <section className='mt-10 flex gap-10'>
-<Tabs defaultValue="top-posts" className="w-[400px]">
+<Tabs defaultValue="top-posts" className="w-full">
   <TabsList className='bckground-light800_dark400 min-h-[42px] p-1'>
     <TabsTrigger value="top-posts" className='tab'>
         Top Posts
@@ -107,7 +125,26 @@ const Profile = async ({ params }: RouteParams) => {
         Answers
     </TabsTrigger>
   </TabsList>
-  <TabsContent value="top-posts" className='mt-5 flex w-full flex-col gap-6'>List of questions.</TabsContent>
+  <TabsContent value="top-posts" className='mt-5 flex w-full flex-col gap-6'>
+    
+  <DataRenderer
+      success={userQuestionsSuccess}
+      error={userQuestionsError}
+      data={questions}
+      empty={EMPTY_QUESTION}
+      render={(hotQuesitons) => (
+        <div className='mt-10 flex w-full flex-col gap-6'>
+        {questions.map((question) => ( 
+          <QuestionCard key={question._id} question={question} />
+        ))}
+      </div>
+      )} 
+     /> 
+
+    <Pagination page={page} isNext={hasMoreQuestions} />
+
+
+  </TabsContent>
 
   <TabsContent value="answers" className='flex w-full flex-col gap-6'>List of answers.</TabsContent>
 </Tabs> 
