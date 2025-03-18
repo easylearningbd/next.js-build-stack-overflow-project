@@ -1,9 +1,9 @@
 "use server";
  
-import { User } from "@/database";
+import { Answer, Question, User } from "@/database";
 import action from "../handlers/action";
 import handleError from "../handlers/error";
-import { PaginatedSearchParamsSchema } from "../validations";
+import { GetUserSchema, PaginatedSearchParamsSchema } from "../validations";
 import { FilterQuery } from 'mongoose';
 
 export async function getUsers( params: PaginatedSearchParams) : Promise<ActionResponse< { users: User[]; isNext: boolean }>> {
@@ -68,3 +68,40 @@ export async function getUsers( params: PaginatedSearchParams) : Promise<ActionR
     } 
 
 }
+
+
+export async function getUser(params: GetUserParams): Promise<ActionResponse<{
+    user: typeof User;
+    totalQuestions: number;
+    totalAnswers: number; 
+}>> {
+    const validationResult = await action({
+        params,
+        schema: GetUserSchema
+    });
+
+    if (validationResult instanceof Error) {
+        return handleError(validationResult) as ErrorResponse;
+    }
+
+    const {userId} = params;
+
+    try {
+        const user = await User.findById(userId);
+        if(!user) throw new Error("User not found");
+
+  const totalQuestions = await Question.countDocuments({ author: userId});
+  const totalAnswers = await Answer.countDocuments({ author: userId});
+
+  return {
+    success: true,
+    data: {
+        user: JSON.parse(JSON.stringify(user)),
+        totalQuestions,
+        totalAnswers
+    },
+  };        
+    } catch (error) {
+        return handleError(error) as ErrorResponse
+    }
+} 
