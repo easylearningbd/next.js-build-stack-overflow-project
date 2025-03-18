@@ -9,6 +9,8 @@ import { P } from 'pino';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import Stats from '@/components/user/Stats';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 
 const Profile = async ({ params }: RouteParams) => {
     const {id} = await params;
@@ -94,6 +96,23 @@ const Profile = async ({ params }: RouteParams) => {
         BRONZE:0
     }} 
 />
+
+<section className='mt-10 flex gap-10'>
+<Tabs defaultValue="top-posts" className="w-[400px]">
+  <TabsList className='bckground-light800_dark400 min-h-[42px] p-1'>
+    <TabsTrigger value="top-posts" className='tab'>
+        Top Posts
+    </TabsTrigger>
+    <TabsTrigger value="answers" className='tab'>
+        Answers
+    </TabsTrigger>
+  </TabsList>
+  <TabsContent value="top-posts" className='mt-5 flex w-full flex-col gap-6'>List of questions.</TabsContent>
+
+  <TabsContent value="answers" className='flex w-full flex-col gap-6'>List of answers.</TabsContent>
+</Tabs> 
+
+</section>
 
 
         
